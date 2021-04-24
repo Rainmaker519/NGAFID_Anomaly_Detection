@@ -1,0 +1,252 @@
+TensorFlow 2.0 Upgrade Script
+-----------------------------
+Converted 12 files
+Detected 2 issues that require attention
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+File: OmniAnomaly-master\OmniAnomaly-master\main.py
+--------------------------------------------------------------------------------
+OmniAnomaly-master\OmniAnomaly-master\main.py:196:16: WARNING: *.save requires manual check. (This warning is only applicable if the code saves a tf.Keras model) Keras model.save now saves to the Tensorflow SavedModel format by default, instead of HDF5. To continue saving to HDF5, add the argument save_format='h5' to the save() function.
+--------------------------------------------------------------------------------
+File: OmniAnomaly-master\OmniAnomaly-master\omni_anomaly\training.py
+--------------------------------------------------------------------------------
+OmniAnomaly-master\OmniAnomaly-master\omni_anomaly\training.py:107:32: WARNING: tf.get_variable requires manual check. tf.get_variable returns ResourceVariables by default in 2.0, which have well-defined semantics and are stricter about shapes. You can disable this behavior by passing use_resource=False, or by calling tf.compat.v1.disable_resource_variables().
+================================================================================
+Detailed log follows:
+
+================================================================================
+================================================================================
+Input tree: 'OmniAnomaly-master'
+================================================================================
+--------------------------------------------------------------------------------
+Processing file 'OmniAnomaly-master\\OmniAnomaly-master\\data_preprocess.py'
+ outputting to 'OmniAnomaly-master_new\\OmniAnomaly-master\\data_preprocess.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'OmniAnomaly-master\\OmniAnomaly-master\\main.py'
+ outputting to 'OmniAnomaly-master_new\\OmniAnomaly-master\\main.py'
+--------------------------------------------------------------------------------
+
+101:9: INFO: Renamed 'tf.variable_scope' to 'tf.compat.v1.variable_scope'
+120:13: INFO: Renamed 'tf.Session' to 'tf.compat.v1.Session'
+196:16: WARNING: *.save requires manual check. (This warning is only applicable if the code saves a tf.Keras model) Keras model.save now saves to the Tensorflow SavedModel format by default, instead of HDF5. To continue saving to HDF5, add the argument save_format='h5' to the save() function.
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'OmniAnomaly-master\\OmniAnomaly-master\\omni_anomaly\\eval_methods.py'
+ outputting to 'OmniAnomaly-master_new\\OmniAnomaly-master\\omni_anomaly\\eval_methods.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'OmniAnomaly-master\\OmniAnomaly-master\\omni_anomaly\\model.py'
+ outputting to 'OmniAnomaly-master_new\\OmniAnomaly-master\\omni_anomaly\\model.py'
+--------------------------------------------------------------------------------
+
+46:55: INFO: Renamed 'tf.layers.dense' to 'tf.compat.v1.layers.dense'
+46:113: INFO: Renamed 'tf.AUTO_REUSE' to 'tf.compat.v1.AUTO_REUSE'
+60:28: INFO: Renamed 'tf.layers.dense' to 'tf.compat.v1.layers.dense'
+60:86: INFO: Renamed 'tf.AUTO_REUSE' to 'tf.compat.v1.AUTO_REUSE'
+87:28: INFO: Renamed 'tf.layers.dense' to 'tf.compat.v1.layers.dense'
+87:86: INFO: Renamed 'tf.AUTO_REUSE' to 'tf.compat.v1.AUTO_REUSE'
+137:13: INFO: `name` passed to `name_scope`. Because you may be re-entering an existing scope, it is not safe to convert automatically,  the v2 name_scope does not support re-entering scopes by name.
+
+137:13: INFO: Renamed 'tf.name_scope' to 'tf.compat.v1.name_scope'
+140:24: INFO: Added keywords to args of function 'tf.reduce_sum'
+147:19: INFO: Added keywords to args of function 'tf.reduce_mean'
+177:13: INFO: `name` passed to `name_scope`. Because you may be re-entering an existing scope, it is not safe to convert automatically,  the v2 name_scope does not support re-entering scopes by name.
+
+177:13: INFO: Renamed 'tf.name_scope' to 'tf.compat.v1.name_scope'
+185:21: INFO: Added keywords to args of function 'tf.reduce_mean'
+186:28: INFO: Added keywords to args of function 'tf.reduce_sum'
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'OmniAnomaly-master\\OmniAnomaly-master\\omni_anomaly\\prediction.py'
+ outputting to 'OmniAnomaly-master_new\\OmniAnomaly-master\\omni_anomaly\\prediction.py'
+--------------------------------------------------------------------------------
+
+51:28: INFO: Renamed 'tf.placeholder' to 'tf.compat.v1.placeholder'
+53:28: INFO: Renamed 'tf.placeholder' to 'tf.compat.v1.placeholder'
+62:17: INFO: `name` passed to `name_scope`. Because you may be re-entering an existing scope, it is not safe to convert automatically,  the v2 name_scope does not support re-entering scopes by name.
+
+62:17: INFO: Renamed 'tf.name_scope' to 'tf.compat.v1.name_scope'
+97:13: INFO: `name` passed to `name_scope`. Because you may be re-entering an existing scope, it is not safe to convert automatically,  the v2 name_scope does not support re-entering scopes by name.
+
+97:13: INFO: Renamed 'tf.name_scope' to 'tf.compat.v1.name_scope'
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'OmniAnomaly-master\\OmniAnomaly-master\\omni_anomaly\\recurrent_distribution.py'
+ outputting to 'OmniAnomaly-master_new\\OmniAnomaly-master\\omni_anomaly\\recurrent_distribution.py'
+--------------------------------------------------------------------------------
+
+41:37: INFO: Added keywords to args of function 'tf.shape'
+41:62: INFO: Added keywords to args of function 'tf.shape'
+43:46: INFO: Renamed 'tf.AUTO_REUSE' to 'tf.compat.v1.AUTO_REUSE'
+48:37: INFO: Added keywords to args of function 'tf.shape'
+49:39: INFO: Added keywords to args of function 'tf.shape'
+60:41: INFO: Added keywords to args of function 'tf.shape'
+60:63: INFO: Added keywords to args of function 'tf.shape'
+62:46: INFO: Renamed 'tf.AUTO_REUSE' to 'tf.compat.v1.AUTO_REUSE'
+65:19: INFO: Renamed 'tf.log' to 'tf.math.log'
+68:24: INFO: Renamed 'tf.check_numerics' to 'tf.debugging.check_numerics'
+80:23: INFO: Added keywords to args of function 'tf.transpose'
+86:32: INFO: Added keywords to args of function 'tf.convert_to_tensor'
+86:74: INFO: Added keywords to args of function 'tf.shape'
+97:13: INFO: `name` passed to `name_scope`. Because you may be re-entering an existing scope, it is not safe to convert automatically,  the v2 name_scope does not support re-entering scopes by name.
+
+97:13: INFO: Renamed 'tf.name_scope' to 'tf.compat.v1.name_scope'
+100:20: INFO: Added keywords to args of function 'tf.transpose'
+101:20: INFO: Renamed 'tf.truncated_normal' to 'tf.random.truncated_normal'
+101:40: INFO: Added keywords to args of function 'tf.shape'
+103:33: INFO: Added keywords to args of function 'tf.convert_to_tensor'
+103:66: INFO: Added keywords to args of function 'tf.shape'
+113:22: INFO: Added keywords to args of function 'tf.transpose'
+118:27: INFO: Added keywords to args of function 'tf.reduce_mean'
+132:21: INFO: `name` passed to `name_scope`. Because you may be re-entering an existing scope, it is not safe to convert automatically,  the v2 name_scope does not support re-entering scopes by name.
+
+132:21: INFO: Renamed 'tf.name_scope' to 'tf.compat.v1.name_scope'
+138:13: INFO: `name` passed to `name_scope`. Because you may be re-entering an existing scope, it is not safe to convert automatically,  the v2 name_scope does not support re-entering scopes by name.
+
+138:13: INFO: Renamed 'tf.name_scope' to 'tf.compat.v1.name_scope'
+140:37: INFO: Added keywords to args of function 'tf.convert_to_tensor'
+140:59: INFO: Added keywords to args of function 'tf.shape'
+140:79: INFO: Added keywords to args of function 'tf.shape'
+141:24: INFO: Added keywords to args of function 'tf.transpose'
+143:37: INFO: Added keywords to args of function 'tf.convert_to_tensor'
+143:59: INFO: Added keywords to args of function 'tf.shape'
+144:24: INFO: Added keywords to args of function 'tf.transpose'
+151:27: INFO: Added keywords to args of function 'tf.transpose'
+153:27: INFO: Added keywords to args of function 'tf.transpose'
+156:27: INFO: Added keywords to args of function 'tf.reduce_sum'
+160:13: INFO: `name` passed to `name_scope`. Because you may be re-entering an existing scope, it is not safe to convert automatically,  the v2 name_scope does not support re-entering scopes by name.
+
+160:13: INFO: Renamed 'tf.name_scope' to 'tf.compat.v1.name_scope'
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'OmniAnomaly-master\\OmniAnomaly-master\\omni_anomaly\\spot.py'
+ outputting to 'OmniAnomaly-master_new\\OmniAnomaly-master\\omni_anomaly\\spot.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'OmniAnomaly-master\\OmniAnomaly-master\\omni_anomaly\\training.py'
+ outputting to 'OmniAnomaly-master_new\\OmniAnomaly-master\\omni_anomaly\\training.py'
+--------------------------------------------------------------------------------
+
+76:27: INFO: Renamed 'tf.train.AdamOptimizer' to 'tf.compat.v1.train.AdamOptimizer'
+107:32: WARNING: tf.get_variable requires manual check. tf.get_variable returns ResourceVariables by default in 2.0, which have well-defined semantics and are stricter about shapes. You can disable this behavior by passing use_resource=False, or by calling tf.compat.v1.disable_resource_variables().
+107:32: INFO: Renamed 'tf.get_variable' to 'tf.compat.v1.get_variable'
+113:28: INFO: Renamed 'tf.placeholder' to 'tf.compat.v1.placeholder'
+115:34: INFO: Renamed 'tf.placeholder' to 'tf.compat.v1.placeholder'
+119:17: INFO: `name` passed to `name_scope`. Because you may be re-entering an existing scope, it is not safe to convert automatically,  the v2 name_scope does not support re-entering scopes by name.
+
+119:17: INFO: Renamed 'tf.name_scope' to 'tf.compat.v1.name_scope'
+123:28: INFO: tf.losses.get_regularization_loss requires manual check. tf.losses have been replaced with object oriented versions in TF 2.0 and after. The loss function calls have been converted to compat.v1 for backward compatibility. Please update these calls to the TF 2.0 versions.
+123:28: INFO: Renamed 'tf.losses.get_regularization_loss' to 'tf.compat.v1.losses.get_regularization_loss'
+128:43: INFO: Renamed 'tf.GraphKeys' to 'tf.compat.v1.GraphKeys'
+149:31: INFO: Renamed 'tf.check_numerics' to 'tf.debugging.check_numerics'
+157:20: INFO: Renamed 'tf.get_collection' to 'tf.compat.v1.get_collection'
+157:38: INFO: Renamed 'tf.GraphKeys' to 'tf.compat.v1.GraphKeys'
+162:17: INFO: `name` passed to `name_scope`. Because you may be re-entering an existing scope, it is not safe to convert automatically,  the v2 name_scope does not support re-entering scopes by name.
+
+162:17: INFO: Renamed 'tf.name_scope' to 'tf.compat.v1.name_scope'
+163:35: INFO: tf.summary.merge requires manual check. The TF 1.x summary API cannot be automatically migrated to TF 2.0, so symbols have been converted to tf.compat.v1.summary.* and must be migrated manually. Typical usage will only require changes to the summary writing logic, not to individual calls like scalar(). For examples of the new summary API, see the Effective TF 2.0 migration document or check the TF 2.0 TensorBoard tutorials.
+163:35: INFO: Renamed 'tf.summary.merge' to 'tf.compat.v1.summary.merge'
+164:20: INFO: tf.summary.histogram requires manual check. The TF 1.x summary API cannot be automatically migrated to TF 2.0, so symbols have been converted to tf.compat.v1.summary.* and must be migrated manually. Typical usage will only require changes to the summary writing logic, not to individual calls like scalar(). For examples of the new summary API, see the Effective TF 2.0 migration document or check the TF 2.0 TensorBoard tutorials.
+164:20: INFO: Renamed 'tf.summary.histogram' to 'tf.compat.v1.summary.histogram'
+169:40: INFO: Renamed 'tf.variables_initializer' to 'tf.compat.v1.variables_initializer'
+171:69: INFO: Renamed 'tf.GraphKeys' to 'tf.compat.v1.GraphKeys'
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'OmniAnomaly-master\\OmniAnomaly-master\\omni_anomaly\\utils.py'
+ outputting to 'OmniAnomaly-master_new\\OmniAnomaly-master\\omni_anomaly\\utils.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'OmniAnomaly-master\\OmniAnomaly-master\\omni_anomaly\\vae.py'
+ outputting to 'OmniAnomaly-master_new\\OmniAnomaly-master\\omni_anomaly\\vae.py'
+--------------------------------------------------------------------------------
+
+180:17: INFO: `name` passed to `name_scope`. Because you may be re-entering an existing scope, it is not safe to convert automatically,  the v2 name_scope does not support re-entering scopes by name.
+
+180:17: INFO: Renamed 'tf.name_scope' to 'tf.compat.v1.name_scope'
+272:13: INFO: Renamed 'tf.variable_scope' to 'tf.compat.v1.variable_scope'
+274:13: INFO: Renamed 'tf.variable_scope' to 'tf.compat.v1.variable_scope'
+277:13: INFO: `name` passed to `name_scope`. Because you may be re-entering an existing scope, it is not safe to convert automatically,  the v2 name_scope does not support re-entering scopes by name.
+
+277:13: INFO: Renamed 'tf.name_scope' to 'tf.compat.v1.name_scope'
+312:13: INFO: `name` passed to `name_scope`. Because you may be re-entering an existing scope, it is not safe to convert automatically,  the v2 name_scope does not support re-entering scopes by name.
+
+312:13: INFO: Renamed 'tf.name_scope' to 'tf.compat.v1.name_scope'
+316:13: INFO: Renamed 'tf.variable_scope' to 'tf.compat.v1.variable_scope'
+318:13: INFO: Renamed 'tf.variable_scope' to 'tf.compat.v1.variable_scope'
+321:13: INFO: `name` passed to `name_scope`. Because you may be re-entering an existing scope, it is not safe to convert automatically,  the v2 name_scope does not support re-entering scopes by name.
+
+321:13: INFO: Renamed 'tf.name_scope' to 'tf.compat.v1.name_scope'
+350:13: INFO: `name` passed to `name_scope`. Because you may be re-entering an existing scope, it is not safe to convert automatically,  the v2 name_scope does not support re-entering scopes by name.
+
+350:13: INFO: Renamed 'tf.name_scope' to 'tf.compat.v1.name_scope'
+404:13: INFO: `name` passed to `name_scope`. Because you may be re-entering an existing scope, it is not safe to convert automatically,  the v2 name_scope does not support re-entering scopes by name.
+
+404:13: INFO: Renamed 'tf.name_scope' to 'tf.compat.v1.name_scope'
+428:19: INFO: Added keywords to args of function 'tf.reduce_mean'
+443:13: INFO: `name` passed to `name_scope`. Because you may be re-entering an existing scope, it is not safe to convert automatically,  the v2 name_scope does not support re-entering scopes by name.
+
+443:13: INFO: Renamed 'tf.name_scope' to 'tf.compat.v1.name_scope'
+516:17: INFO: `name` passed to `name_scope`. Because you may be re-entering an existing scope, it is not safe to convert automatically,  the v2 name_scope does not support re-entering scopes by name.
+
+516:17: INFO: Renamed 'tf.name_scope' to 'tf.compat.v1.name_scope'
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'OmniAnomaly-master\\OmniAnomaly-master\\omni_anomaly\\wrapper.py'
+ outputting to 'OmniAnomaly-master_new\\OmniAnomaly-master\\omni_anomaly\\wrapper.py'
+--------------------------------------------------------------------------------
+
+57:13: INFO: `name` passed to `name_scope`. Because you may be re-entering an existing scope, it is not safe to convert automatically,  the v2 name_scope does not support re-entering scopes by name.
+
+57:13: INFO: Renamed 'tf.name_scope' to 'tf.compat.v1.name_scope'
+59:22: INFO: Added keywords to args of function 'tf.reduce_mean'
+68:21: INFO: `name` passed to `name_scope`. Because you may be re-entering an existing scope, it is not safe to convert automatically,  the v2 name_scope does not support re-entering scopes by name.
+
+68:21: INFO: Renamed 'tf.name_scope' to 'tf.compat.v1.name_scope'
+74:13: INFO: `name` passed to `name_scope`. Because you may be re-entering an existing scope, it is not safe to convert automatically,  the v2 name_scope does not support re-entering scopes by name.
+
+74:13: INFO: Renamed 'tf.name_scope' to 'tf.compat.v1.name_scope'
+80:26: INFO: Renamed 'tf.layers.dense' to 'tf.compat.v1.layers.dense'
+80:74: INFO: Renamed 'tf.AUTO_REUSE' to 'tf.compat.v1.AUTO_REUSE'
+92:9: INFO: Renamed 'tf.variable_scope' to 'tf.compat.v1.variable_scope'
+92:39: INFO: Renamed 'tf.AUTO_REUSE' to 'tf.compat.v1.AUTO_REUSE'
+94:16: INFO: Added keywords to args of function 'tf.reduce_mean'
+105:22: INFO: Renamed 'tf.nn.rnn_cell.GRUCell' to 'tf.compat.v1.nn.rnn_cell.GRUCell'
+107:22: INFO: Renamed 'tf.nn.rnn_cell.BasicRNNCell' to 'tf.compat.v1.nn.rnn_cell.BasicRNNCell'
+119:22: INFO: Renamed 'tf.layers.dense' to 'tf.compat.v1.layers.dense'
+125:9: INFO: Renamed 'tf.variable_scope' to 'tf.compat.v1.variable_scope'
+125:43: INFO: Renamed 'tf.AUTO_REUSE' to 'tf.compat.v1.AUTO_REUSE'
+134:9: INFO: Renamed 'tf.variable_scope' to 'tf.compat.v1.variable_scope'
+134:43: INFO: Renamed 'tf.AUTO_REUSE' to 'tf.compat.v1.AUTO_REUSE'
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Processing file 'OmniAnomaly-master\\OmniAnomaly-master\\omni_anomaly\\__init__.py'
+ outputting to 'OmniAnomaly-master_new\\OmniAnomaly-master\\omni_anomaly\\__init__.py'
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+
