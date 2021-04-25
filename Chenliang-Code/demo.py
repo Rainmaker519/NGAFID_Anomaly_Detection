@@ -1,3 +1,9 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+# In[1]:
+
+
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -7,55 +13,43 @@ from keras import metrics
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 
-def Splitting_dataset(data, window_size, scale=True, scaler_type=MinMaxScaler):
-        _l = len(data) 
-        data = scaler_type().fit_transform(data)
-        Xs = []
-        Ys = []
-        for i in range(0, (len(data) - window_size)):
-            Xs.append(data[i:i+window_size])
-            Ys.append(data[i:i+window_size])
-        tr_x, ts_x, tr_y, ts_y = [np.array(x) for x in train_test_split(Xs, Ys)]
-        assert tr_x.shape[2] == ts_x.shape[2] == (data.shape[1] if (type(data) == np.ndarray) else len(data))
-        return  (tr_x.shape[2], tr_x, tr_y, ts_x, ts_y)
-
-def Model(window_length, feature_number,cell_type,loss_type, optimizer_type):
+def Model(index_step_length, feature_number, cell_type, loss_type, optimizer_type):
         model = keras.Sequential()
-        if cell_type ==0:
-            model.add(keras.layers.SimpleRNN(64, kernel_initializer='glorot_uniform', batch_input_shape=(None, window_length, feature_number), return_sequences=True, name='Encoder_1'))
+        if cell_type == 0:
+            model.add(keras.layers.SimpleRNN(64, kernel_initializer='glorot_uniform', batch_input_shape=(None, index_step_length, feature_number), return_sequences=True, name='Encoder_1'))
             model.add(keras.layers.LSTM(32, kernel_initializer='glorot_uniform', return_sequences=True, name='Encoder_2'))
             model.add(keras.layers.GRU(16, kernel_initializer='glorot_uniform', return_sequences=False, name='Encoder_3'))
-            model.add(keras.layers.RepeatVector(window_length, name='Encoder_Decoder_bridge'))
+            model.add(keras.layers.RepeatVector(index_step_length, name='Encoder_Decoder_bridge'))
             model.add(keras.layers.GRU(16, kernel_initializer='glorot_uniform', return_sequences=True, name='Decoder_1'))
             model.add(keras.layers.LSTM(32, kernel_initializer='glorot_uniform', return_sequences=True, name='Decoder_2'))
             model.add(keras.layers.SimpleRNN(64, kernel_initializer='glorot_uniform', return_sequences=True, name='Decoder_3'))
             model.add(keras.layers.TimeDistributed(keras.layers.Dense(feature_number)))
             
-        if cell_type ==1:
-            model.add(keras.layers.SimpleRNN(64, kernel_initializer='glorot_uniform', batch_input_shape=(None, window_length, feature_number), return_sequences=True, name='Encoder_1'))
+        if cell_type == 1:
+            model.add(keras.layers.SimpleRNN(64, kernel_initializer='glorot_uniform', batch_input_shape=(None, index_step_length, feature_number), return_sequences=True, name='Encoder_1'))
             model.add(keras.layers.SimpleRNN(32, kernel_initializer='glorot_uniform', return_sequences=True, name='Encoder_2'))
             model.add(keras.layers.SimpleRNN(16, kernel_initializer='glorot_uniform', return_sequences=False, name='Encoder_3'))
-            model.add(keras.layers.RepeatVector(window_length, name='Encoder_Decoder_bridge'))
+            model.add(keras.layers.RepeatVector(index_step_length, name='Encoder_Decoder_bridge'))
             model.add(keras.layers.SimpleRNN(16, kernel_initializer='glorot_uniform', return_sequences=True, name='Decoder_1'))
             model.add(keras.layers.SimpleRNN(32, kernel_initializer='glorot_uniform', return_sequences=True, name='Decoder_2'))
             model.add(keras.layers.SimpleRNN(64, kernel_initializer='glorot_uniform', return_sequences=True, name='Decoder_3'))
             model.add(keras.layers.TimeDistributed(keras.layers.Dense(feature_number)))
         
-        if cell_type ==2:
-            model.add(keras.layers.LSTM(64, kernel_initializer='glorot_uniform', batch_input_shape=(None, window_length, feature_number), return_sequences=True, name='Encoder_1'))
+        if cell_type == 2:
+            model.add(keras.layers.LSTM(64, kernel_initializer='glorot_uniform', batch_input_shape=(None, index_step_length, feature_number), return_sequences=True, name='Encoder_1'))
             model.add(keras.layers.LSTM(32, kernel_initializer='glorot_uniform', return_sequences=True, name='Encoder_2'))
             model.add(keras.layers.LSTM(16, kernel_initializer='glorot_uniform', return_sequences=False, name='Encoder_3'))
-            model.add(keras.layers.RepeatVector(window_length, name='Encoder_Decoder_bridge'))
+            model.add(keras.layers.RepeatVector(index_step_length, name='Encoder_Decoder_bridge'))
             model.add(keras.layers.LSTM(16, kernel_initializer='glorot_uniform', return_sequences=True, name='Decoder_1'))
             model.add(keras.layers.LSTM(32, kernel_initializer='glorot_uniform', return_sequences=True, name='Decoder_2'))
             model.add(keras.layers.LSTM(64, kernel_initializer='glorot_uniform', return_sequences=True, name='Decoder_3'))
             model.add(keras.layers.TimeDistributed(keras.layers.Dense(feature_number)))
         
-        if cell_type==3:
-            model.add(keras.layers.GRU(64, kernel_initializer='glorot_uniform', batch_input_shape=(None, window_length, feature_number), return_sequences=True, name='Encoder_1'))
+        if cell_type == 3:
+            model.add(keras.layers.GRU(64, kernel_initializer='glorot_uniform', batch_input_shape=(None, index_step_length, feature_number), return_sequences=True, name='Encoder_1'))
             model.add(keras.layers.GRU(32, kernel_initializer='glorot_uniform', return_sequences=True, name='Encoder_2'))
             model.add(keras.layers.GRU(16, kernel_initializer='glorot_uniform', return_sequences=False, name='Encoder_3'))
-            model.add(keras.layers.RepeatVector(window_length, name='Encoder_Decoder_bridge'))
+            model.add(keras.layers.RepeatVector(index_step_length, name='Encoder_Decoder_bridge'))
             model.add(keras.layers.GRU(16, kernel_initializer='glorot_uniform', return_sequences=True, name='Decoder_1'))
             model.add(keras.layers.GRU(32, kernel_initializer='glorot_uniform', return_sequences=True, name='Decoder_2'))
             model.add(keras.layers.GRU(64, kernel_initializer='glorot_uniform', return_sequences=True, name='Decoder_3'))
@@ -64,6 +58,20 @@ def Model(window_length, feature_number,cell_type,loss_type, optimizer_type):
         model.compile(loss=loss_type,optimizer=optimizer_type,metrics=['accuracy'])
         model.build()
         return model
+    
+#Split and reshape the data set by window_size , use min-max or stanrdardlize method to rescale the data
+def Splitting_dataset(data, window_size, scale=True, scaler_type=MinMaxScaler):
+        l = len(data) 
+        data = scaler_type().fit_transform(data)
+        Xs = []
+        Ys = []
+        for i in range(0, (len(data) - window_size)):
+            Xs.append(data[i:i+window_size])
+            Ys.append(data[i:i+window_size])
+        train_x, test_x, train_y, test_y = [np.array(x) for x in train_test_split(Xs, Ys)]
+        assert train_x.shape[2] == test_x.shape[2] == (data.shape[1] if (type(data) == np.ndarray) else len(data))
+        return  (train_x.shape[2], train_x, train_y, test_x, test_y)
+
 
         
 def Summary(model):
@@ -83,36 +91,38 @@ def get_threshold(train_loss):
 
 if __name__ == '__main__':
     data = pd.read_csv('c172_file_1.csv')
-    
-    cell_type = 0
-    window_size= 4
+    size= 10
     epoch = 100
     batch = 100
-    window_length = 4
+    index_step_length = 10
     loss_type = "mse"
     optimizer_type = "adam"
+    cells = [0,1,2,3]
+    labels, X, Y, XX, YY = Splitting_dataset(data, size)
+    for cell_type in cells:
+        demo = Model(index_step_length, labels, cell_type, loss_type, optimizer_type)
+        Summary(demo)
+        history = demo.fit(x=X, y=Y, validation_data=(XX, YY), epochs=epoch, batch_size=batch, shuffle=True).history
     
-    labels, X, Y, XX, YY = Splitting_dataset(data, window_size)
-    demo = Model(window_length, labels, cell_type, loss_type, optimizer_type)
+        fig, loss_validation= plt.subplots(figsize=(14,8), dpi=80)
+        loss_validation.plot(history['loss'],'b',label = 'Train',linewidth=2)
+        loss_validation.plot(history['val_loss'],'r',label = 'Validation',linewidth=2)
+        loss_validation.set_xlabel('Epoch')
+        loss_validation.set_ylabel('Loss(mse)')
+        loss_validation.legend(loc='center right')
+
+        fig, accuracy_validation= plt.subplots(figsize=(14,8), dpi=80)
+        accuracy_validation.plot(history['accuracy'],'b',label = 'Train',linewidth=2)
+        accuracy_validation.plot(history['val_accuracy'],'r',label = 'Validatioin',linewidth=2)
+        accuracy_validation.set_xlabel('Epoch')
+        accuracy_validation.set_ylabel('Accuracy(mse)')
+        accuracy_validation.legend(loc='center right')
     
-    Summary(demo)
     
-    history = demo.fit(x=X, y=Y, validation_data=(XX, YY), epochs=epoch, batch_size=batch, shuffle=True).history
     
-    fig, loss_validation= plt.subplots(figsize=(14,8), dpi=80)
-    loss_validation.plot(history['loss'],'b',label = 'Train',linewidth=2)
-    loss_validation.plot(history['val_loss'],'r',label = 'Validation',linewidth=2)
-    loss_validation.set_xlabel('Epoch')
-    loss_validation.set_ylabel('Loss(mse)')
-    loss_validation.legend(loc='center right')
-    
-    fig, accuracy_validation= plt.subplots(figsize=(14,8), dpi=80)
-    accuracy_validation.plot(history['accuracy'],'b',label = 'Train',linewidth=2)
-    accuracy_validation.plot(history['val_accuracy'],'r',label = 'Validatioin',linewidth=2)
-    accuracy_validation.set_xlabel('Epoch')
-    accuracy_validation.set_ylabel('Accuracy(mse)')
-    accuracy_validation.legend(loc='center right')
-    
+
+
+# In[ ]:
 
 
 
