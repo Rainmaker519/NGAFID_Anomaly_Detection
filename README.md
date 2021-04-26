@@ -15,8 +15,8 @@
 
 <h2> Running our code
 </h2>
-<p> At the moment the only code that runs is some demo code working as a proof of concept.\n
-For Chenliang's code, please check the demo-model.py file under Chenliang's code and you may use demo.ipynb to run the demo. The Jupyter Notebook file will display better graphs.\n
+<p> At the moment the only code that runs is some demo code working as a proof of concept.<br />
+For Chenliang's code, please check the demo-model.py file under Chenliang's code and you may use demo.ipynb to run the demo. The Jupyter Notebook file will display better graphs.<br />
 For DeepAnt code, please check the DeepAnt_1D_yahoo file. You will see the dataset real_1.csv under the same folder.
 
 
