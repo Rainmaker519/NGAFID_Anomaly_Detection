@@ -33,15 +33,15 @@ def Model(index_step_length, feature_number, cell_type, loss_type, optimizer_typ
         model.build()
         return model
     
-#Split and reshape the data set by window_size , use min-max or stanrdardlize method to rescale the data
-def Splitting_dataset(data, window_size, scale=True, scaler_type=MinMaxScaler):
+#Split and reshape the data set by step_size , use min-max or stanrdardlize method to rescale the data
+def Splitting_dataset(data, step_size, scale=True, scaler_type=MinMaxScaler):
         l = len(data) 
         data = scaler_type().fit_transform(data)
         Xs = []
         Ys = []
         for i in range(0, (len(data) - window_size)):
-            Xs.append(data[i:i+window_size])
-            Ys.append(data[i:i+window_size])
+            Xs.append(data[i:i+step_size])
+            Ys.append(data[i:i+step_size])
         train_x, test_x, train_y, test_y = [np.array(x) for x in train_test_split(Xs, Ys)]
         assert train_x.shape[2] == test_x.shape[2] == (data.shape[1] if (type(data) == np.ndarray) else len(data))
         return  (train_x.shape[2], train_x, train_y, test_x, test_y)
@@ -65,14 +65,14 @@ def get_threshold(train_loss):
 
 if __name__ == '__main__':
     data = pd.read_csv('c172_file_1.csv')
-    size= 10
+    step_size= 10
     epoch = 100
     batch = 100
     index_step_length = 10
     loss_type = "mse"
     optimizer_type = "adam"
-    cells = [1]
-    labels, X, Y, XX, YY = Splitting_dataset(data, size)
+    cells = [0,1,2]
+    labels, X, Y, XX, YY = Splitting_dataset(data, step_size)
     for cell_type in cells:
         demo = Model(index_step_length, labels, cell_type, loss_type, optimizer_type)
         Summary(demo)
@@ -84,7 +84,8 @@ if __name__ == '__main__':
         loss_validation.set_xlabel('Epoch')
         loss_validation.set_ylabel('Loss(mse)')
         loss_validation.legend(loc='center right')
-        plt.savefig('Loss')
+        loss_validation.set_title("Loss graph " + str(cell_type))
+        plt.savefig('Loss'  + str(cell_type) +".png", format="PNG" )
 
         fig, accuracy_validation= plt.subplots(figsize=(14,8), dpi=80)
         accuracy_validation.plot(history['accuracy'],'b',label = 'Train',linewidth=2)
@@ -92,7 +93,8 @@ if __name__ == '__main__':
         accuracy_validation.set_xlabel('Epoch')
         accuracy_validation.set_ylabel('Accuracy(mse)')
         accuracy_validation.legend(loc='center right')
-        plt.savefig('Accuracy')
+        accuracy_validation.set_title("Accuracy graph " + str(cell_type))
+        plt.savefig('Accuracy' + str(cell_type) +".png", format="PNG" )
     
     
 
