@@ -1,8 +1,5 @@
 #!/usr/bin/env python
 # coding: utf-8
-
-
-
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -39,13 +36,12 @@ def Splitting_dataset(data, step_size, scale=True, scaler_type=MinMaxScaler):
         data = scaler_type().fit_transform(data)
         Xs = []
         Ys = []
-        for i in range(0, (len(data) - window_size)):
+        for i in range(0, (len(data) - step_size)):
             Xs.append(data[i:i+step_size])
             Ys.append(data[i:i+step_size])
         train_x, test_x, train_y, test_y = [np.array(x) for x in train_test_split(Xs, Ys)]
         assert train_x.shape[2] == test_x.shape[2] == (data.shape[1] if (type(data) == np.ndarray) else len(data))
         return  (train_x.shape[2], train_x, train_y, test_x, test_y)
-
 
         
 def Summary(model):
