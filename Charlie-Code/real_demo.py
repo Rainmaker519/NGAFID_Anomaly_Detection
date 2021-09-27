@@ -5,6 +5,7 @@ import tensorflow as tf
 import keras
 import torch
 import torch.nn.functional as F
+import matplotlib.pyplot as plt
 from torch import nn
 from keras import metrics
 from sklearn.model_selection import train_test_split
@@ -37,9 +38,16 @@ def loss_fn(recon_x, x, mu, logvar):
         # 0.5 * sum(1 + log(sigma^2) - mu^2 - sigma^2)
         KLD = -0.5 * torch.sum(1 + logvar - mu**2 -  logvar.exp())
         return BCE + KLD
+    
+def loss_fn_2(recon_x, x, mu, logvar):
+    losses = 0
+    for i in range(len(recon_x)):
+        tmp = x[i]-recon_x[i]
+        loss = loss + (tmp*tmp)
+    return loss
 #------------------------------------------------------------------------------------------------------------------------------------- 
 class VAE(nn.Module):
-    def __init__(self, image_size=784, h_dim=400, z_dim=20):
+    def __init__(self, image_size=784, h_dim=27, z_dim=13):
         super(VAE, self).__init__()
         self.encoder = nn.Sequential(
             nn.Linear(image_size, h_dim),
@@ -67,33 +75,47 @@ class VAE(nn.Module):
         z = self.reparameterize(mu, logvar)
         return self.decoder(z), mu, logvar
     
-    
-    
+"""    
+class TestModel(nn.Module):
+    def __init__(self,input_size=54):
+        super(TestModel,self).__init__()
+        self.model = nn.Sequential(
+            nn.RNN(input_size,input_size)
+            nn.LeakyReLU(0.2)
+            nn.RNN(input_size,input_size)
+            nn.Dropout2d(.5)
+            nn.Linear(input_size,5)
+            nn.Linear(5,input_size))
+        def forward(self,next):
+            return model(next)
+"""            
 #-------------------------------------------------------------------------------------------------------------------------------------   
 if __name__ == '__main__':
     data = pd.read_csv('c172_file_1.csv')
     step_size= 10
-    epoch = 100
+    #epoch = 1000
     batch = 128
     index_step_length = 31
     loss_type = "mse"
     optimizer_type = "adam"
-    #cells = [0,1,2]
+    #recon_x
     labels, X, Y, XX, YY = Splitting_dataset(data, step_size)
-    print(str(len(X)) + str(len(X[0])))
     demo = VAE(index_step_length)
     demo.double()
-    optimizer = torch.optim.Adam(demo.parameters(), lr=1e-3)
+    optimizer = torch.optim.Adam(demo.parameters(), lr=1e-2)
     
     epochs = 10
     
     idx = 0
+    
+    loss_history = []
 
     for epoch in range(epochs):
         for i in range(len(XX)):
             localX = torch.tensor(XX[i])
             recon, mu, logvar = demo(localX)
             loss = loss_fn(recon, localX, mu, logvar)
+            loss_history.append(loss/batch)
     
             optimizer.zero_grad()
             loss.backward()
@@ -102,6 +124,8 @@ if __name__ == '__main__':
             
             if idx%100 == 0:
                 print("Epoch[{}/{}] Loss: {:.3f}".format(epoch+1, epochs, loss.data.item()/batch))
-                #recon_x, _, _ = demo(fixed_x)
-    
+                
+                #recon,_,_ = demo(fixed_x)
+                
+    plt.plot(loss_history)
     
