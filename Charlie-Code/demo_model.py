@@ -21,7 +21,7 @@ OUTPUT_SEQ_LEN = 1
 BATCH_SIZE = 128
     
 class VAE(nn.Module):
-    def __init__(self, image_size=54, h_dim=1, z_dim=1):
+    def __init__(self, image_size=54, h_dim=20, z_dim=1):
         super(VAE, self).__init__()
         self.encoder = nn.Sequential(
             nn.Linear(image_size, h_dim),

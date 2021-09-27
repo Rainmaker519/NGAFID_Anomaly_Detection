@@ -32,7 +32,7 @@ def to_var(x):
     return Variable(x)
 
 def loss_fn(recon_x, x, mu, logvar):
-        BCE = F.binary_cross_entropy(recon_x, x, reduction='sum')
+        BCE = F.binary_cross_entropy(recon_x, x, size_average=False)
     
         # see Appendix B from VAE paper:
         # Kingma and Welling. Auto-Encoding Variational Bayes. ICLR, 2014
@@ -41,13 +41,15 @@ def loss_fn(recon_x, x, mu, logvar):
         return BCE + KLD
     
 def loss_fn_2(recon_x, x, mu, logvar):
+    loss = 0
+
     tmp = x - recon_x
     tmp = tmp * tmp
     loss = torch.sum(tmp)/len(recon_x)
     return loss
 #------------------------------------------------------------------------------------------------------------------------------------- 
 class VAE(nn.Module):
-    def __init__(self, image_size=784, h_dim=10, z_dim=1):
+    def __init__(self, image_size=784, h_dim=27, z_dim=1):
         super(VAE, self).__init__()
         self.encoder = nn.Sequential(
             nn.Linear(image_size, h_dim),
@@ -112,7 +114,7 @@ if __name__ == '__main__':
         for i in range(len(XX)):
             localX = torch.tensor(XX[i])
             recon, mu, logvar = demo(localX)
-            loss = loss_fn(recon, localX, mu, logvar)
+            loss = loss_fn_2(recon, localX, mu, logvar)
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
@@ -147,7 +149,7 @@ if __name__ == '__main__':
         for i in range(len(XX)):
             localX = torch.tensor(XX[i])
             recon, mu, logvar = demo(localX)
-            loss = loss_fn(recon, localX, mu, logvar)
+            loss = loss_fn_2(recon, localX, mu, logvar)
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
@@ -182,7 +184,7 @@ if __name__ == '__main__':
         for i in range(len(XX)):
             localX = torch.tensor(XX[i])
             recon, mu, logvar = demo(localX)
-            loss = loss_fn(recon, localX, mu, logvar)
+            loss = loss_fn_2(recon, localX, mu, logvar)
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
