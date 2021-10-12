@@ -97,7 +97,7 @@ if __name__ == '__main__':
     step_size= 1
     batch = 128
     index_step_length = 31
-    epochs = 3
+    epochs = 40
     #---------------------------------------------------------------------------------------------------------------------------------
     labels, X, Y, XX, YY = Splitting_dataset(data, step_size)
     demo = VAE(index_step_length)
@@ -106,6 +106,7 @@ if __name__ == '__main__':
 
     idx = 0
     
+    anomaly_history = []
     loss_history = []
     avgSum = 0
     avgCount = 0
@@ -123,15 +124,19 @@ if __name__ == '__main__':
             avgSum = avgSum + torch.mean(loss/batch)
             avgCount = avgCount + 1
             
-            if idx%20 == 0:
+            anomaly_score = torch.mean(localX/recon)
+            
+            if idx%40 == 0:
                 loss_history.append(avgSum/avgCount)
+                anomaly_history.append(anomaly_score)
                 avgSum = 0
                 avgCount = 0
             
             if idx%100 == 0:
                 print("Epoch[{}/{}] Loss: {:.3f}".format(epoch+1, epochs, loss.data.item()/batch))
                 
-            plt.plot(loss_history,'g-',label='h 10,z 2')
+            #plt.plot(loss_history,'g-',label='h 10,z 2')
+            plt.plot(anomaly_history,'g-',label='h 10,z 2')
     #---------------------------------------------------------------------------------------------------------------------------------
     data = pd.read_csv('c172_file_1.csv')
     labels, X, Y, XX, YY = Splitting_dataset(data, step_size)
@@ -141,6 +146,7 @@ if __name__ == '__main__':
 
     idx = 0
     
+    anomaly_history = []
     loss_history = []
     avgSum = 0
     avgCount = 0
@@ -158,15 +164,19 @@ if __name__ == '__main__':
             avgSum = avgSum + torch.mean(loss/batch)
             avgCount = avgCount + 1
             
-            if idx%20 == 0:
+            anomaly_score = torch.mean(localX/recon)
+            
+            if idx%40 == 0:
                 loss_history.append(avgSum/avgCount)
+                anomaly_history.append(anomaly_score)
                 avgSum = 0
                 avgCount = 0
             
             if idx%100 == 0:
                 print("Epoch[{}/{}] Loss: {:.3f}".format(epoch+1, epochs, loss.data.item()/batch))
                 
-            plt.plot(loss_history,'r-',label='h 35,z 4')
+            #plt.plot(loss_history,'r-',label='h 35,z 4')
+            plt.plot(anomaly_history,'r-',label='h 35,z 4')
     #---------------------------------------------------------------------------------------------------------------------------------
     data = pd.read_csv('c172_file_1.csv')
     labels, X, Y, XX, YY = Splitting_dataset(data, step_size)
@@ -176,6 +186,7 @@ if __name__ == '__main__':
 
     idx = 0
     
+    anomaly_history = []
     loss_history = []
     avgSum = 0
     avgCount = 0
@@ -193,14 +204,18 @@ if __name__ == '__main__':
             avgSum = avgSum + torch.mean(loss/batch)
             avgCount = avgCount + 1
             
-            if idx%20 == 0:
+            anomaly_score = torch.mean(localX/recon)
+            
+            if idx%40 == 0:
                 loss_history.append(avgSum/avgCount)
+                anomaly_history.append(anomaly_score)
                 avgSum = 0
                 avgCount = 0
             
             if idx%100 == 0:
                 print("Epoch[{}/{}] Loss: {:.3f}".format(epoch+1, epochs, loss.data.item()/batch))
                 
-            plt.plot(loss_history,'b-',label='h 8,z 2')
+            #plt.plot(loss_history,'b-',label='h 8,z 2')
+            plt.plot(anomaly_history,'b-',label='h 8,z 2')
     #---------------------------------------------------------------------------------------------------------------------------------
     print("Using VAE cross entropy loss function")
