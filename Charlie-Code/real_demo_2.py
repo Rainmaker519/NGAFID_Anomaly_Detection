@@ -131,13 +131,15 @@ if __name__ == '__main__':
     step_size= 1
     batch = 128
     index_step_length = 31
-    epochs = 40
+    epochs = 4
     #---------------------------------------------------------------------------------------------------------------------------------
     labels, X, Y, XX, YY = Splitting_dataset(data, step_size)
-    demo = NormalizingFlowModel(index_step_length)
+    demo = VAE(index_step_length)
     demo.double()
     optimizer = torch.optim.Adam(demo.parameters(), lr=1e-3)
-
+    #do i have to evaluate the priors with the vae before I can train the NF model?
+    demo2 = NormalizingFlowModel(index_step_length,demo)
+    
     idx = 0
     
     anomaly_history = []
@@ -171,12 +173,14 @@ if __name__ == '__main__':
                 
             #plt.plot(loss_history,'g-',label='h 10,z 2')
             plt.plot(anomaly_history,'g-',label='h 10,z 2')
+            """
     #---------------------------------------------------------------------------------------------------------------------------------
     data = pd.read_csv('c172_file_1.csv')
     labels, X, Y, XX, YY = Splitting_dataset(data, step_size)
     demo = VAE(index_step_length,h_dim=28,z_dim=1)
     demo.double()
     optimizer = torch.optim.Adam(demo.parameters(), lr=1e-3)
+    
 
     idx = 0
     
@@ -253,3 +257,4 @@ if __name__ == '__main__':
             plt.plot(anomaly_history,'b-',label='h 8,z 2')
     #---------------------------------------------------------------------------------------------------------------------------------
     print("Using VAE cross entropy loss function")
+    """
