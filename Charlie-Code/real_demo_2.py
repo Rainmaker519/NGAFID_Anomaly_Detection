@@ -77,21 +77,55 @@ class VAE(nn.Module):
         z = self.reparameterize(mu, logvar)
         return self.decoder(z), mu, logvar
     
-"""    
-class TestModel(nn.Module):
-    def __init__(self,input_size=54):
-        super(TestModel,self).__init__()
-        self.model = nn.Sequential(
-            nn.RNN(input_size,input_size)
-            nn.LeakyReLU(0.2)
-            nn.RNN(input_size,input_size)
-            nn.Dropout2d(.5)
-            nn.Linear(input_size,5)
-            nn.Linear(5,input_size))
-        def forward(self,next):
-            return model(next)
-"""            
-#-------------------------------------------------------------------------------------------------------------------------------------   
+class NormalizingFlow(nn.Module):
+    """ A sequence of Normalizing Flows is a Normalizing Flow """
+
+    def __init__(self, flows):
+        super().__init__()
+        self.flows = nn.ModuleList(flows)
+
+    def forward(self, x):
+        m, _ = x.shape
+        log_det = torch.zeros(m)
+        zs = [x]
+        for flow in self.flows:
+            x, ld = flow.forward(x)
+            log_det += ld
+            zs.append(x)
+        return zs, log_det
+
+    def backward(self, z):
+        m, _ = z.shape
+        log_det = torch.zeros(m)
+        xs = [z]
+        for flow in self.flows[::-1]:
+            z, ld = flow.backward(z)
+            log_det += ld
+            xs.append(z)
+        return xs, log_det
+
+class NormalizingFlowModel(nn.Module):
+    """ A Normalizing Flow Model is a (prior, flow) pair """
+    
+    def __init__(self, prior, flows):
+        super().__init__()
+        self.prior = prior
+        self.flow = NormalizingFlow(flows)
+    
+    def forward(self, x):
+        zs, log_det = self.flow.forward(x)
+        prior_logprob = self.prior.log_prob(zs[-1]).view(x.size(0), -1).sum(1)
+        return zs, prior_logprob, log_det
+
+    def backward(self, z):
+        xs, log_det = self.flow.backward(z)
+        return xs, log_det
+    
+    def sample(self, num_samples):
+        z = self.prior.sample((num_samples,))
+        xs, _ = self.flow.backward(z)
+        return xs
+    #--------------------------------------------------------------------------------------------------------------------------------  
 if __name__ == '__main__':
     data = pd.read_csv('c172_file_1.csv')
     step_size= 1
@@ -100,7 +134,7 @@ if __name__ == '__main__':
     epochs = 40
     #---------------------------------------------------------------------------------------------------------------------------------
     labels, X, Y, XX, YY = Splitting_dataset(data, step_size)
-    demo = VAE(index_step_length)
+    demo = NormalizingFlowModel(index_step_length)
     demo.double()
     optimizer = torch.optim.Adam(demo.parameters(), lr=1e-3)
 
@@ -195,7 +229,7 @@ if __name__ == '__main__':
         for i in range(len(XX)):
             localX = torch.tensor(XX[i])
             recon, mu, logvar = demo(localX)
-            loss = loss_fn_2(recon, localX, mu, logvar)
+            loss = loss_fn(recon, localX, mu, logvar)
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
