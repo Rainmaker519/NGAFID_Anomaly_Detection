@@ -12,6 +12,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 from torch.autograd import Variable
 from time import sleep
+from torch.distributions import MultivariateNormal, Uniform, TransformedDistribution, SigmoidTransform
 #--------------------------------------------------------------------------------------------------------------------------------------
 #Split and reshape the data set by step_size , use min-max or stanrdardlize method to rescale the data
 def Splitting_dataset(data, step_size, scale=True, scaler_type=MinMaxScaler):
@@ -55,7 +56,9 @@ class VAE(nn.Module):
             nn.Linear(image_size, h_dim),
             nn.LeakyReLU(0.1),
             nn.Linear(h_dim, z_dim*2)
-            #add pnf here for OmniAnomaly
+            #how do i use the encoder as the approximate prior???
+            
+            #rn its failing because Sequential has no attribute log_prob
         )
         
         self.decoder = nn.Sequential(
@@ -66,15 +69,18 @@ class VAE(nn.Module):
         )
     
     def reparameterize(self, mu, logvar):
-        std = logvar.mul(0.5).exp_()
+        std = logvar.mul(0.5).exp_() #std dev and mu is avg
         esp = to_var(torch.randn(*mu.size()))
+        print(esp)
         z = mu + std * esp
         return z
     
     def forward(self, x):
         h = self.encoder(x)
+        #print("h: " + str(h))
         mu, logvar = torch.chunk(h, 2, dim=1)
         z = self.reparameterize(mu, logvar)
+        #print("z: " + str(z))
         return self.decoder(z), mu, logvar
     
 class NormalizingFlow(nn.Module):
@@ -131,14 +137,19 @@ if __name__ == '__main__':
     step_size= 1
     batch = 128
     index_step_length = 31
-    epochs = 4
+    epochs = 10
     #---------------------------------------------------------------------------------------------------------------------------------
     labels, X, Y, XX, YY = Splitting_dataset(data, step_size)
-    demo = VAE(index_step_length)
+    demo = VAE(index_step_length,h_dim=10,z_dim=2)
     demo.double()
     optimizer = torch.optim.Adam(demo.parameters(), lr=1e-3)
-    #do i have to evaluate the priors with the vae before I can train the NF model?
-    demo2 = NormalizingFlowModel(index_step_length,demo)
+    #do i have to evaluate the priors with the vae before I can train the NF model? (at least for actual use)
+    
+    #check what type of flows are used in OmniAnomaly, since the flows are like an array of models and i dont think that the vae
+    #is the thing im supposed to make an array of, since the flow is meant for use in the vae (but could be wrong)
+   # prior = TransformedDistribution(Uniform(torch.zeros(2), torch.ones(2)), SigmoidTransform().inv) # Logistic distribution
+    #demo = NormalizingFlowModel(prior,index_step_length)
+    
     
     idx = 0
     
@@ -151,7 +162,7 @@ if __name__ == '__main__':
         for i in range(len(XX)):
             localX = torch.tensor(XX[i])
             recon, mu, logvar = demo(localX)
-            loss = loss_fn_2(recon, localX, mu, logvar)
+            loss = loss_fn(recon, localX, mu, logvar)
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
@@ -173,11 +184,11 @@ if __name__ == '__main__':
                 
             #plt.plot(loss_history,'g-',label='h 10,z 2')
             plt.plot(anomaly_history,'g-',label='h 10,z 2')
-            """
+            
     #---------------------------------------------------------------------------------------------------------------------------------
     data = pd.read_csv('c172_file_1.csv')
     labels, X, Y, XX, YY = Splitting_dataset(data, step_size)
-    demo = VAE(index_step_length,h_dim=28,z_dim=1)
+    demo = VAE(index_step_length,h_dim=28,z_dim=2)
     demo.double()
     optimizer = torch.optim.Adam(demo.parameters(), lr=1e-3)
     
@@ -193,7 +204,7 @@ if __name__ == '__main__':
         for i in range(len(XX)):
             localX = torch.tensor(XX[i])
             recon, mu, logvar = demo(localX)
-            loss = loss_fn_2(recon, localX, mu, logvar)
+            loss = loss_fn(recon, localX, mu, logvar)
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
@@ -218,7 +229,7 @@ if __name__ == '__main__':
     #---------------------------------------------------------------------------------------------------------------------------------
     data = pd.read_csv('c172_file_1.csv')
     labels, X, Y, XX, YY = Splitting_dataset(data, step_size)
-    demo = VAE(index_step_length,h_dim=8,z_dim=3)
+    demo = VAE(index_step_length,h_dim=8,z_dim=2)
     demo.double()
     optimizer = torch.optim.Adam(demo.parameters(), lr=1e-3)
 
@@ -257,4 +268,4 @@ if __name__ == '__main__':
             plt.plot(anomaly_history,'b-',label='h 8,z 2')
     #---------------------------------------------------------------------------------------------------------------------------------
     print("Using VAE cross entropy loss function")
-    """
+    

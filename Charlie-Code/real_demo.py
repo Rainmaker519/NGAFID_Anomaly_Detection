@@ -71,9 +71,20 @@ class VAE(nn.Module):
     
     def forward(self, x):
         h = self.encoder(x)
+        #print("H: " + str(h))
         mu, logvar = torch.chunk(h, 2, dim=1)
+        print("avg: " + str(mu))
+        print("logvar: " + str(logvar))
         z = self.reparameterize(mu, logvar)
+        #I NEED TO SOMEHOW REPRESENT THE ENCODER AS A DISTRIBUTION
+        
+        #maybe break the VAE into an encoder and decoder class, then make a VAE that utilizes both
+        #now we have z0, and we pass this into the nf to get
+        nf = NormalizingFlowModel(demo.encoder,[AffineConstantFlow(len(z))])
+        z = nf.forward(z)
+        #print("Z: " + str(z))
         return self.decoder(z), mu, logvar
+        
     
 class NormalizingFlow(nn.Module):
     """ A sequence of Normalizing Flows is a Normalizing Flow """
@@ -123,16 +134,41 @@ class NormalizingFlowModel(nn.Module):
         z = self.prior.sample((num_samples,))
         xs, _ = self.flow.backward(z)
         return xs
+    
+class AffineConstantFlow(nn.Module):
+    """ 
+    Scales + Shifts the flow by (learned) constants per dimension.
+    In NICE paper there is a Scaling layer which is a special case of this where t is None
+    """
+    def __init__(self, dim, scale=True, shift=True):
+        super().__init__()
+        self.s = nn.Parameter(torch.randn(1, dim, requires_grad=True)) if scale else None
+        self.t = nn.Parameter(torch.randn(1, dim, requires_grad=True)) if shift else None
+        
+    def forward(self, x):
+        s = self.s if self.s is not None else x.new_zeros(x.size())
+        t = self.t if self.t is not None else x.new_zeros(x.size())
+        z = x * torch.exp(s) + t
+        log_det = torch.sum(s, dim=1)
+        return z, log_det
+    
+    def backward(self, z):
+        s = self.s if self.s is not None else z.new_zeros(z.size())
+        t = self.t if self.t is not None else z.new_zeros(z.size())
+        x = (z - t) * torch.exp(-s)
+        log_det = torch.sum(-s, dim=1)
+        return x, log_det
     #--------------------------------------------------------------------------------------------------------------------------------   
 if __name__ == '__main__':
     data = pd.read_csv('c172_file_1.csv')
     step_size= 1
     batch = 128
     index_step_length = 31
-    epochs = 40
+    epochs = 10
     #---------------------------------------------------------------------------------------------------------------------------------
     labels, X, Y, XX, YY = Splitting_dataset(data, step_size)
-    demo = VAE(index_step_length)
+    demo = VAE(index_step_length, h_dim=7, z_dim=1)
+    
     demo.double()
     optimizer = torch.optim.Adam(demo.parameters(), lr=1e-3)
 
@@ -168,7 +204,7 @@ if __name__ == '__main__':
                 print("Epoch[{}/{}] Loss: {:.3f}".format(epoch+1, epochs, loss.data.item()/batch))
                 
             #plt.plot(loss_history,'g-',label='h 10,z 2')
-            plt.plot(anomaly_history,'g-',label='h 10,z 2')
+            plt.plot(anomaly_history,'g-',label='h 7,z 1')
     #---------------------------------------------------------------------------------------------------------------------------------
     data = pd.read_csv('c172_file_1.csv')
     labels, X, Y, XX, YY = Splitting_dataset(data, step_size)
@@ -208,11 +244,11 @@ if __name__ == '__main__':
                 print("Epoch[{}/{}] Loss: {:.3f}".format(epoch+1, epochs, loss.data.item()/batch))
                 
             #plt.plot(loss_history,'r-',label='h 35,z 4')
-            plt.plot(anomaly_history,'r-',label='h 35,z 4')
+            plt.plot(anomaly_history,'r-',label='h 28,z 1')
     #---------------------------------------------------------------------------------------------------------------------------------
     data = pd.read_csv('c172_file_1.csv')
     labels, X, Y, XX, YY = Splitting_dataset(data, step_size)
-    demo = VAE(index_step_length,h_dim=8,z_dim=3)
+    demo = VAE(index_step_length,h_dim=8,z_dim=1)
     demo.double()
     optimizer = torch.optim.Adam(demo.parameters(), lr=1e-3)
 
@@ -248,6 +284,6 @@ if __name__ == '__main__':
                 print("Epoch[{}/{}] Loss: {:.3f}".format(epoch+1, epochs, loss.data.item()/batch))
                 
             #plt.plot(loss_history,'b-',label='h 8,z 2')
-            plt.plot(anomaly_history,'b-',label='h 8,z 2')
+            plt.plot(anomaly_history,'b-',label='h 8,z 1')
     #---------------------------------------------------------------------------------------------------------------------------------
     print("Using VAE cross entropy loss function")
