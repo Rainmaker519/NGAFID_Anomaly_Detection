@@ -56,9 +56,8 @@ class VAE(nn.Module):
             nn.Linear(image_size, h_dim),
             nn.LeakyReLU(0.1),
             nn.Linear(h_dim, z_dim*2)
-            #how do i use the encoder as the approximate prior???
             
-            #rn its failing because Sequential has no attribute log_prob
+            #can't use 
         )
         
         self.decoder = nn.Sequential(
@@ -131,6 +130,45 @@ class NormalizingFlowModel(nn.Module):
         z = self.prior.sample((num_samples,))
         xs, _ = self.flow.backward(z)
         return xs
+    
+
+class PlanarFlow(nn.Module):
+    def __init__(self, dim):
+        """Instantiates one step of planar flow.
+        Args:
+            dim: input dimensionality.
+        """
+        super(PlanarFlow, self).__init__()
+
+        self.linear_u = nn.Linear(dim, dim)
+        self.linear_w = nn.Linear(dim, dim)
+        self.linear_b = nn.Linear(dim, 1)
+
+    def forward(self, x, v):
+        """Forward pass.
+        Args:
+            x: input tensor (B x D).
+            v: output from last layer of encoder (B x D).
+        Returns:
+            transformed x and log-determinant of Jacobian.
+        """
+        u, w, b = self.linear_u(v), self.linear_w(v), self.linear_b(v)
+
+        def m(x):
+            return F.softplus(x) - 1.
+        def h(x):
+            return torch.tanh(x)
+        def h_prime(x):
+            return 1. - h(x)**2
+
+        inner = (w * u).sum(dim=1, keepdim=True)
+        u = u + (m(inner) - inner) * w / (w * w).sum(dim=1, keepdim=True)
+        activation = (w * x).sum(dim=1, keepdim=True) + b
+        x = x + u * h(activation)
+        psi = h_prime(activation) * w
+        log_det = torch.log(torch.abs(1. + (u * psi).sum(dim=1, keepdim=True)))
+
+        return x, v, log_det
     #--------------------------------------------------------------------------------------------------------------------------------  
 if __name__ == '__main__':
     data = pd.read_csv('c172_file_1.csv')
