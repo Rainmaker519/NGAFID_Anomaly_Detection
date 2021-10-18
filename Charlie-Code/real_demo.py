@@ -10,8 +10,10 @@ from torch import nn
 from keras import metrics
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
+from torch.distributions import MultivariateNormal, Uniform, TransformedDistribution, SigmoidTransform
 from torch.autograd import Variable
 from time import sleep
+
 #--------------------------------------------------------------------------------------------------------------------------------------
 #Split and reshape the data set by step_size , use min-max or stanrdardlize method to rescale the data
 def Splitting_dataset(data, step_size, scale=True, scaler_type=MinMaxScaler):
@@ -78,9 +80,13 @@ class VAE(nn.Module):
         z = self.reparameterize(mu, logvar)
         #I NEED TO SOMEHOW REPRESENT THE ENCODER AS A DISTRIBUTION
         
+        prior = TransformedDistribution(Uniform(torch.zeros(2), torch.ones(2)), SigmoidTransform().inv)
+        flows = [AffineHalfFlow(dim=2, parity=i%2, scale=False) for i in range(4)]
+        flows.append(AffineConstantFlow(dim=2, shift=False))
+        
         #maybe break the VAE into an encoder and decoder class, then make a VAE that utilizes both
         #now we have z0, and we pass this into the nf to get
-        nf = NormalizingFlowModel(demo.encoder,[AffineConstantFlow(len(z))])
+        nf = NormalizingFlowModel(prior,flows)
         z = nf.forward(z)
         #print("Z: " + str(z))
         return self.decoder(z), mu, logvar
