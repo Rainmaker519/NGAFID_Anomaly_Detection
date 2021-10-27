@@ -55,9 +55,9 @@ class VAE(nn.Module):
         self.encoder = nn.Sequential(
             nn.Linear(image_size, h_dim),
             nn.LeakyReLU(0.1),
-            nn.Linear(h_dim, z_dim*2)
+            nn.Linear(h_dim, z_dim*2) #is it saying its getting a mu and a var for each z dim out?
             
-            #can't use 
+            #how can I represent the encoder as a distribution acting as the prior?
         )
         
         self.decoder = nn.Sequential(
@@ -68,18 +68,35 @@ class VAE(nn.Module):
         )
     
     def reparameterize(self, mu, logvar):
-        std = logvar.mul(0.5).exp_() #std dev and mu is avg
+        std = logvar.mul(0.5).exp_() 
         esp = to_var(torch.randn(*mu.size()))
-        print(esp)
+        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        print(len(esp))
+        #randn - Returns a tensor filled with random numbers from a normal distribution with mean 0 and variance 1 (also called the standard normal distribution).
+        #esp always ends up being just 1 value, we're getting z sampled from a normal distribution here
         z = mu + std * esp
+        print(len(z))
+        #z is a single sampled point from the distribution created from the mu and var from the encoder output
         return z
     
     def forward(self, x):
         h = self.encoder(x)
         #print("h: " + str(h))
         mu, logvar = torch.chunk(h, 2, dim=1)
+        #reparameterize is doing the sampling with esp
         z = self.reparameterize(mu, logvar)
         #print("z: " + str(z))
+
+        prior = torch.distributions.Normal(mu,(logvar.mul(0.5).exp_()))
+        ml = nn.ModuleList()
+        ml.append(AffineConstantFlow(1))
+
+        nf = NormalizingFlowModel(prior,ml)
+        zTransformed = nf(z) #this is where I apply the normalizing flow once its implemented, the points are transformed as theyre generated
+        
+        print("Z: " + str(z))
+        print("ZT: " + str(zTransformed))
+        z = zTransformed
         return self.decoder(z), mu, logvar
     
 class NormalizingFlow(nn.Module):
@@ -169,6 +186,30 @@ class PlanarFlow(nn.Module):
         log_det = torch.log(torch.abs(1. + (u * psi).sum(dim=1, keepdim=True)))
 
         return x, v, log_det
+    
+class AffineConstantFlow(nn.Module):
+    """ 
+    Scales + Shifts the flow by (learned) constants per dimension.
+    In NICE paper there is a Scaling layer which is a special case of this where t is None
+    """
+    def __init__(self, dim, scale=True, shift=True):
+        super().__init__()
+        self.s = nn.Parameter(torch.randn(1, dim, requires_grad=True)) if scale else None
+        self.t = nn.Parameter(torch.randn(1, dim, requires_grad=True)) if shift else None
+        
+    def forward(self, x):
+        s = self.s if self.s is not None else x.new_zeros(x.size())
+        t = self.t if self.t is not None else x.new_zeros(x.size())
+        z = x * torch.exp(s) + t
+        log_det = torch.sum(s, dim=1)
+        return z, log_det
+    
+    def backward(self, z):
+        s = self.s if self.s is not None else z.new_zeros(z.size())
+        t = self.t if self.t is not None else z.new_zeros(z.size())
+        x = (z - t) * torch.exp(-s)
+        log_det = torch.sum(-s, dim=1)
+        return x, log_det
     #--------------------------------------------------------------------------------------------------------------------------------  
 if __name__ == '__main__':
     data = pd.read_csv('c172_file_1.csv')
@@ -178,16 +219,17 @@ if __name__ == '__main__':
     epochs = 10
     #---------------------------------------------------------------------------------------------------------------------------------
     labels, X, Y, XX, YY = Splitting_dataset(data, step_size)
-    demo = VAE(index_step_length,h_dim=10,z_dim=2)
+    demo = VAE(index_step_length,h_dim=10,z_dim=4)
     demo.double()
     optimizer = torch.optim.Adam(demo.parameters(), lr=1e-3)
     #do i have to evaluate the priors with the vae before I can train the NF model? (at least for actual use)
     
     #check what type of flows are used in OmniAnomaly, since the flows are like an array of models and i dont think that the vae
     #is the thing im supposed to make an array of, since the flow is meant for use in the vae (but could be wrong)
-   # prior = TransformedDistribution(Uniform(torch.zeros(2), torch.ones(2)), SigmoidTransform().inv) # Logistic distribution
     #demo = NormalizingFlowModel(prior,index_step_length)
     
+    d = torch.distributions.Normal(5,12)
+    print(d.log_prob(torch.Tensor(5)))
     
     idx = 0
     
@@ -226,7 +268,7 @@ if __name__ == '__main__':
     #---------------------------------------------------------------------------------------------------------------------------------
     data = pd.read_csv('c172_file_1.csv')
     labels, X, Y, XX, YY = Splitting_dataset(data, step_size)
-    demo = VAE(index_step_length,h_dim=28,z_dim=2)
+    demo = VAE(index_step_length,h_dim=28,z_dim=1)
     demo.double()
     optimizer = torch.optim.Adam(demo.parameters(), lr=1e-3)
     
