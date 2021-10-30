@@ -66,16 +66,31 @@ class VAE(nn.Module):
             nn.Linear(h_dim, image_size),
             nn.Sigmoid()
         )
+        
+        self.nf = nn.ModuleList(
+            [AffineConstantFlow(1),
+            AffineConstantFlow(1),
+            AffineConstantFlow(1),
+            AffineConstantFlow(1)]
+        )
+        
+        #should i add a flow model as a paremeter of the vae for easy access in parameterize?
     
     def reparameterize(self, mu, logvar):
+        #print("logvar: " + str(logvar))
         std = logvar.mul(0.5).exp_() 
+        #print("std: " + str(std))
+        
+        #print("test: " + str(to_var(torch.Tensor([.5,1]))))
+        #print("test: " + str(torch.Tensor([.5,1])))
+        
         esp = to_var(torch.randn(*mu.size()))
-        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-        print(len(esp))
+        #print("!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        #print("esp: " + str(esp))
         #randn - Returns a tensor filled with random numbers from a normal distribution with mean 0 and variance 1 (also called the standard normal distribution).
         #esp always ends up being just 1 value, we're getting z sampled from a normal distribution here
         z = mu + std * esp
-        print(len(z))
+        #print(z)
         #z is a single sampled point from the distribution created from the mu and var from the encoder output
         return z
     
@@ -87,16 +102,12 @@ class VAE(nn.Module):
         z = self.reparameterize(mu, logvar)
         #print("z: " + str(z))
 
-        prior = torch.distributions.Normal(mu,(logvar.mul(0.5).exp_()))
-        ml = nn.ModuleList()
-        ml.append(AffineConstantFlow(1))
-
-        nf = NormalizingFlowModel(prior,ml)
-        zTransformed = nf(z) #this is where I apply the normalizing flow once its implemented, the points are transformed as theyre generated
+        zTransformed = self.nf(z) #this is where I apply the normalizing flow once its implemented, the points are transformed as theyre generated
         
-        print("Z: " + str(z))
-        print("ZT: " + str(zTransformed))
-        z = zTransformed
+        #print("Z: " + str(z))
+        #print("ZT: " + str(zTransformed))
+        z = zTransformed[0][0]
+        #print(z[0][0])
         return self.decoder(z), mu, logvar
     
 class NormalizingFlow(nn.Module):
@@ -111,9 +122,12 @@ class NormalizingFlow(nn.Module):
         log_det = torch.zeros(m)
         zs = [x]
         for flow in self.flows:
-            x, ld = flow.forward(x)
+            #h = demo.encoder(x)
+            #mu, logvar = torch.chunk(h, 2, dim=1)
+            x, ld = flow.forward(x)#,demo.reparameterize(mu,logvar))
             log_det += ld
             zs.append(x)
+            #here we're just summing the log deterimant of each of the flows
         return zs, log_det
 
     def backward(self, z):
@@ -145,7 +159,7 @@ class NormalizingFlowModel(nn.Module):
     
     def sample(self, num_samples):
         z = self.prior.sample((num_samples,))
-        xs, _ = self.flow.backward(z)
+        xs, _ = self.flow.backward(z)#should i update this to be the approximate posterior??????????????????
         return xs
     
 
@@ -187,6 +201,11 @@ class PlanarFlow(nn.Module):
 
         return x, v, log_det
     
+    #def backward(self,
+    
+#class PNCustomFlow(nn.Module):
+    #def __init__(self,dim
+    
 class AffineConstantFlow(nn.Module):
     """ 
     Scales + Shifts the flow by (learned) constants per dimension.
@@ -216,20 +235,23 @@ if __name__ == '__main__':
     step_size= 1
     batch = 128
     index_step_length = 31
-    epochs = 10
+    epochs = 20
     #---------------------------------------------------------------------------------------------------------------------------------
     labels, X, Y, XX, YY = Splitting_dataset(data, step_size)
-    demo = VAE(index_step_length,h_dim=10,z_dim=4)
+    demo = VAE(index_step_length,h_dim=7,z_dim=2)
     demo.double()
-    optimizer = torch.optim.Adam(demo.parameters(), lr=1e-3)
+    optimizer = torch.optim.RMSprop(demo.parameters(), lr=1e-4)
+    
+    #print("currParams: " + str(demo.parameters()))
+ 
     #do i have to evaluate the priors with the vae before I can train the NF model? (at least for actual use)
     
     #check what type of flows are used in OmniAnomaly, since the flows are like an array of models and i dont think that the vae
     #is the thing im supposed to make an array of, since the flow is meant for use in the vae (but could be wrong)
     #demo = NormalizingFlowModel(prior,index_step_length)
     
-    d = torch.distributions.Normal(5,12)
-    print(d.log_prob(torch.Tensor(5)))
+    #d = torch.distributions.Normal(5,12)
+    #print(d.log_prob(torch.Tensor(5)))
     
     idx = 0
     
@@ -239,9 +261,12 @@ if __name__ == '__main__':
     avgCount = 0
 
     for epoch in range(epochs):
+        #print(len(XX))
         for i in range(len(XX)):
             localX = torch.tensor(XX[i])
+            #print(localX.size())
             recon, mu, logvar = demo(localX)
+            #print(recon.size())
             loss = loss_fn(recon, localX, mu, logvar)
             optimizer.zero_grad()
             loss.backward()
@@ -263,89 +288,4 @@ if __name__ == '__main__':
                 print("Epoch[{}/{}] Loss: {:.3f}".format(epoch+1, epochs, loss.data.item()/batch))
                 
             #plt.plot(loss_history,'g-',label='h 10,z 2')
-            plt.plot(anomaly_history,'g-',label='h 10,z 2')
-            
-    #---------------------------------------------------------------------------------------------------------------------------------
-    data = pd.read_csv('c172_file_1.csv')
-    labels, X, Y, XX, YY = Splitting_dataset(data, step_size)
-    demo = VAE(index_step_length,h_dim=28,z_dim=1)
-    demo.double()
-    optimizer = torch.optim.Adam(demo.parameters(), lr=1e-3)
-    
-
-    idx = 0
-    
-    anomaly_history = []
-    loss_history = []
-    avgSum = 0
-    avgCount = 0
-
-    for epoch in range(epochs):
-        for i in range(len(XX)):
-            localX = torch.tensor(XX[i])
-            recon, mu, logvar = demo(localX)
-            loss = loss_fn(recon, localX, mu, logvar)
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
-            idx = idx + 1
-            
-            avgSum = avgSum + torch.mean(loss/batch)
-            avgCount = avgCount + 1
-            
-            anomaly_score = torch.mean(localX/recon)
-            
-            if idx%40 == 0:
-                loss_history.append(avgSum/avgCount)
-                anomaly_history.append(anomaly_score)
-                avgSum = 0
-                avgCount = 0
-            
-            if idx%100 == 0:
-                print("Epoch[{}/{}] Loss: {:.3f}".format(epoch+1, epochs, loss.data.item()/batch))
-                
-            #plt.plot(loss_history,'r-',label='h 35,z 4')
-            plt.plot(anomaly_history,'r-',label='h 35,z 4')
-    #---------------------------------------------------------------------------------------------------------------------------------
-    data = pd.read_csv('c172_file_1.csv')
-    labels, X, Y, XX, YY = Splitting_dataset(data, step_size)
-    demo = VAE(index_step_length,h_dim=8,z_dim=2)
-    demo.double()
-    optimizer = torch.optim.Adam(demo.parameters(), lr=1e-3)
-
-    idx = 0
-    
-    anomaly_history = []
-    loss_history = []
-    avgSum = 0
-    avgCount = 0
-
-    for epoch in range(epochs):
-        for i in range(len(XX)):
-            localX = torch.tensor(XX[i])
-            recon, mu, logvar = demo(localX)
-            loss = loss_fn(recon, localX, mu, logvar)
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
-            idx = idx + 1
-            
-            avgSum = avgSum + torch.mean(loss/batch)
-            avgCount = avgCount + 1
-            
-            anomaly_score = torch.mean(localX/recon)
-            
-            if idx%40 == 0:
-                loss_history.append(avgSum/avgCount)
-                anomaly_history.append(anomaly_score)
-                avgSum = 0
-                avgCount = 0
-            
-            if idx%100 == 0:
-                print("Epoch[{}/{}] Loss: {:.3f}".format(epoch+1, epochs, loss.data.item()/batch))
-                
-            #plt.plot(loss_history,'b-',label='h 8,z 2')
-            plt.plot(anomaly_history,'b-',label='h 8,z 2')
-    #---------------------------------------------------------------------------------------------------------------------------------
-    print("Using VAE cross entropy loss function")
-    
+            plt.plot(loss_history,'g-',label='h 10,z 2')
