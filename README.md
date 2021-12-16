@@ -11,7 +11,8 @@
 
 <h2>Data
 </h2>
-<p> Our project uses both NGAFID data as well as data from the TEP data set, available on Kaggle. (TEP: https://www.kaggle.com/averkij/tennessee-eastman-process-simulation-dataset, NGAFID: https://www.kaggle.com/hooong/ngafid-mc-20210917) 
+<p> Our project uses both NGAFID data as well as data from the TEP data set, available on Kaggle. (TEP: https://www.kaggle.com/averkij/tennessee-eastman-process-simulation-dataset, TEP: https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910
+/DVN/6C3JR1, NGAFID: https://www.kaggle.com/hooong/ngafid-mc-20210917) 
 
 <h2> Running our code
 </h2>
