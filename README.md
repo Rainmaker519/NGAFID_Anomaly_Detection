@@ -3,7 +3,7 @@
 <h1> Our Project
 </h1>
 
-<p> Our project attempts to implement several versions of multivariate anomaly detection for NGAFID flight data. Currently we are working on three seperate implementations, and two are able to be run to get some result.
+<p> Our project attempts to implement several versions of multivariate anomaly detection for NGAFID flight data. Currently we are working on three seperate implementations, one a VAE model with normalizing flow, an RNN model, and a CNN model.
 
 <h2>Setup
 </h2>
@@ -11,15 +11,15 @@
 
 <h2>Data
 </h2>
-<p> You could check the NGAFID_dataset. Right now, there is a type of aviation data. We will upload the other two types in the future. In each fight dataset, you can see around 5000+ data points and 31 different variables in time series format.
+<p> Our project uses both NGAFID data as well as data from the TEP data set, available on Kaggle. (https://www.kaggle.com/averkij/tennessee-eastman-process-simulation-dataset) 
 
 <h2> Running our code
 </h2>
-<p> At the moment the only code that runs is some demo code working as a proof of concept.<br />
+<p> <br />
 For Chenliang's code, please check the demo-model.py file under Chenliang's code and you may use demo.ipynb to run the demo. The Jupyter Notebook file will display better graphs.<br />
 For DeepAnt code, please check the DeepAnt_1D_yahoo file. You will see the dataset real_1.csv under the same folder. <br />
-For Charlie-Code, OmniAnomaly is still being updated for use on this dataset, in that many of the required dependencies need to be replaced with newer versions capable of replicating the original functionality of both older TensorFlow and TFSnippet libraries.
+For Charlie-Code, standup3-Copy1.ipynb is the primary demo file to look at if looking to understand how to implement this approach.
 
 <h2> Tennessee Eastman Process
 </h2>
-<p> Tennessee Eastman Process is a chemical reaction process. It is widely used for fault detection right now. <br />
+<p> Tennessee Eastman Process is a chemical reaction process. It is widely used for fault detection right now, given it being one of the few labeled multivariate time series data sets. <br />
