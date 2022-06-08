@@ -58,6 +58,8 @@ class VAE(nn.Module):
             nn.Linear(h_dim, z_dim*2) #is it saying its getting a mu and a var for each z dim out?
             
             #how can I represent the encoder as a distribution acting as the prior?
+            
+            #(from later me) lol no the prior is the distribution which can be sampled with reparameterize
         )
         
         self.decoder = nn.Sequential(
